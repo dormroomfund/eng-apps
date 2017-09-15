@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      /* CSS */
+      body { margin: 0; padding: 0; }
+    </style>
+    <title>circle</title>
+  </head>
+  <body>
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="55" r="20">
+      </circle>
+    </svg>
+    <script type="text/javascript">
+      var circle = document.querySelector('circle');
+
+      var generateColorCode = function(w, h) {
+        var width = Math.floor((w/window.innerWidth) * 255);
+        var height = Math.floor((h/window.innerHeight) * 255);
+        return ('rgb(' + width + ',' + height + ',0)');
+      }
+      
+      var modifyCircleRadius = function(newRadius) {
+        circle.setAttribute('r', newRadius);
+      }
+
+      var modifyCircleFill = function(newFill) {
+        circle.setAttribute('style', ('fill: ' + newFill + ';'));
+      }
+
+      document.onmousemove = function(e) {
+        modifyCircleRadius(e.clientY/10);
+        modifyCircleFill(generateColorCode(e.clientX, e.clientY));
+      }
+    </script>
+  </body>
+</html>
