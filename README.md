@@ -10,8 +10,6 @@ You can see an example application [here](applications/yasyf).
 
 Please include the following information, in a valid JSON blob stored in `application.json`. Please use the keys in [the example](applications/yasyf/application.json).
 
-You can optionally encrypt this file using the instructions at the bottom of this document, in which case you would name the file `application.json.enc`.
-
   - First Name
   - Last Name
   - Email
@@ -21,17 +19,19 @@ You can optionally encrypt this file using the instructions at the bottom of thi
   - LinkedIn (Link)
   - DRF Referral (Optional)
 
+You can optionally encrypt this file using the instructions at the bottom of this document, in which case you would name the file `application.json.enc`.
+
 ### "Essay"
 
 We want to get to know you a bit better! Include a paragraph or two in a file called `essay.txt`, with the following information.
-
-You can optionally encrypt this file using the instructions at the bottom of this document, in which case you would name the file `essay.txt.enc`.
 
  - What do you like to hack on?
  - Which project are you most proud of?
  - What do you feel that you could get out of joining the DRF team?
  - Why are you uniquely capable of doing this job?
  - What's your most memorable characteristic?
+
+You can optionally encrypt this file using the instructions at the bottom of this document, in which case you would name the file `essay.txt.enc`.
 
 ### Challenge
 
