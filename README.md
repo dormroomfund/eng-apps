@@ -50,3 +50,7 @@ If you wish to conceal your personal information, you can encrypt individual fil
 ```bash
 openssl rsautl -encrypt -inkey public.pem -pubin -in application.json -out application.json.enc
 ```
+
+## Questions?
+
+Shoot Yasyf an email (eng@drf.vc) if something looks wrong, broken, or confusing.
