@@ -1,19 +1,31 @@
 # Dorm Room Fund Engineering Applications
 
-Thanks for your interest in applying to the DRF Engineering team! Our application is pretty simple. Please submit a pull request to this repo with three things.
+Thanks for your interest in applying to the DRF Engineering team! Our application is pretty simple.
+
+Please submit a pull request to this repo with the following three things in a new directory `applications/$username`, where `$username` is your GitHub username.
+
+You can see an example application [here](applications/yasyf).
 
 ### Basic Info
 
-Please include the following information, in a valid JSON blob stored in `application.json`. Please use the keys in [the example](example/application.json). You can optionally encrypt this file using the instructions at the bottom of this document, in which case you would name the file `application.json.enc`.
+Please include the following information, in a valid JSON blob stored in `application.json`. Please use the keys in [the example](applications/yasyf/application.json).
+
+You can optionally encrypt this file using the instructions at the bottom of this document, in which case you would name the file `application.json.enc`.
 
   - First Name
   - Last Name
   - Email
-  - University Name
+  - University
+  - Graduation Year
+  - Resume (Link)
+  - LinkedIn (Link)
+  - DRF Referral (Optional)
 
 ### "Essay"
 
 We want to get to know you a bit better! Include a paragraph or two in a file called `essay.txt`, with the following information.
+
+You can optionally encrypt this file using the instructions at the bottom of this document, in which case you would name the file `essay.txt.enc`.
 
  - What do you like to hack on?
  - Which project are you most proud of?
@@ -23,11 +35,13 @@ We want to get to know you a bit better! Include a paragraph or two in a file ca
 
 ### Challenge
 
-We have the world's quickest coding challenge for you to do! In a directory called `challenge`, please include your solution to the following.
+We have the world's quickest coding challenge for you to do! In a subdirectory called `challenge`, please include your solution to the following.
 
 > What is the most creative way you can get a circle to appear on the screen of a web browser?
 
 Please include a run script (`run.sh`) which we can run to test your solution. This script should do any necessary building and compilation, and print either an address or a file we can open in a web browser running on the same machine.
+
+Alternatively, if your solution is a static site, you can simply include an `index.html` file and omit the run script.
 
 ## Encrypting Your Application
 
