@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-import os, base64, multiprocessing, json, traceback
-import subprocess32 as subprocess
+import os, base64, subprocess, multiprocessing, json, traceback
 
 class TestFailed(Exception):
   pass
@@ -15,7 +14,7 @@ def child_fail(s):
   fail('{}\n\n{}', s, traceback.format_exc())
 
 def write_private_key():
-  with open('private.pem', 'w') as f:
+  with open('private.pem', 'wb') as f:
     f.write(base64.b64decode(os.environ['PRIVATE_KEY']))
 
 def remove_private_key():
@@ -70,26 +69,26 @@ def check_application(username):
   finally:
     remove_files(decrypted)
 
-def exists(root, file):
-  return os.path.exists(os.path.join(root, file))
+def exists(file):
+  return os.path.exists(file)
 
-def raise_if_not_exists(root, file):
-  if not exists(root, file):
+def raise_if_not_exists(file):
+  if not exists(file):
     fail('{} is required but not found!'.format(file))
 
-def raise_if_empty(root, file, min_length=100):
-  with open(os.path.join(root, file)) as f:
+def raise_if_empty(file, min_length=100):
+  with open(file) as f:
     content = f.read()
   if len(content) < 100:
     fail('{} should be at least {} chars long', file, min_length)
 
-def raise_if_not_executable(root, file):
-  if not os.access(os.path.join(root, file), os.X_OK):
+def raise_if_not_executable(file):
+  if not os.access(file, os.X_OK):
     fail('{} is not executable', file)
 
-def _verify_application(root):
+def _verify_application():
   for required in ['application.json', 'essay.txt', 'challenge']:
-    raise_if_not_exists(root, required)
+    raise_if_not_exists(required)
 
   required_keys = {
     'first_name',
@@ -100,7 +99,7 @@ def _verify_application(root):
     'linkedin',
     'email'
   }
-  with open(os.path.join(root, 'application.json')) as f:
+  with open('application.json') as f:
     try:
       application = json.loads(f.read())
     except ValueError:
@@ -110,33 +109,35 @@ def _verify_application(root):
   if missing:
     fail('missing keys in application.json: {}', missing)
 
-  raise_if_empty(root, 'essay.txt')
+  raise_if_empty('essay.txt')
 
   index = os.path.join('challenge', 'index.html')
   build = os.path.join('challenge', 'build.sh')
 
-  if exists(root, build):
-    raise_if_not_executable(root, build)
-    result = subprocess.run(os.path.join(root, build), stdout=subprocess.PIPE, timeout=30)
+  if exists(build):
+    raise_if_not_executable(build)
+    result = subprocess.run(build, stdout=subprocess.PIPE, timeout=30)
     if result.returncode != 0:
       fail('{} exited with nonzero status {}', build, result.returncode)
     if not result.stdout:
       fail('{} did not output anything', build)
-  elif exists(root, index):
-    raise_if_empty(root, index)
+  elif exists(index):
+    raise_if_empty(index)
   else:
     fail('neither {} not {} is present', index, build)
 
 def verify_application(root):
+  hide_private_key()
+  os.chdir(root)
   try:
-    _verify_application(root)
+    _verify_application()
   except TestFailed:
     raise
   except Exception:
     child_fail('application could not be verified')
 
 def start_verify_process(root):
-  pool = multiprocessing.Pool(processes=1)
+  pool = multiprocessing.Pool(processes=1, maxtasksperchild=1)
   pool.apply(verify_application, args=(root,))
   pool.close()
   pool.join()
@@ -151,4 +152,5 @@ def run():
     print('This application is valid!')
 
 if __name__ == '__main__':
+  multiprocessing.set_start_method('spawn')
   run()
