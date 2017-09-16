@@ -1,6 +1,5 @@
 language: python
-python:
-  - "3.6"
+python: "3.6"
 sudo: enabled
 script:
-  - sudo -HE python3.6 test/run_tests.py
+  - python test/run_tests.py
