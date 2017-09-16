@@ -80,6 +80,8 @@ def remove_files(files):
 
 def check_applications():
   for username in os.listdir('applications'):
+    if username.startswith('.'):
+      continue
     root = os.path.join('applications', username)
     time = datetime.utcfromtimestamp(os.path.getmtime(root)).strftime('%B %d, %Y')
     print('---\n{} ({})\n---'.format(username, time))
@@ -136,14 +138,14 @@ def check_json():
     fail('missing keys in application.json: {}', missing)
 
 def _verify_application():
-  for required in ['application.json', 'essay.txt', 'challenge']:
+  for required in ['application.json', 'essay.md', 'challenge']:
     raise_if_not_exists(required)
 
   if exists('application.json'):
     check_json()
 
-  if exists('essay.txt'):
-    raise_if_empty('essay.txt')
+  if exists('essay.md'):
+    raise_if_empty('essay.md')
 
   index = os.path.join('challenge', 'index.html')
   build = os.path.join('challenge', 'build.sh')

@@ -23,7 +23,7 @@ You can optionally encrypt this file using the instructions at the bottom of thi
 
 ### "Essay"
 
-We want to get to know you a bit better! Include a paragraph or two in a file called `essay.txt`, with the following information.
+We want to get to know you a bit better! Include a paragraph or two in a file called `essay.md`, with the following information.
 
  - What do you like to hack on?
  - Which project are you most proud of?
@@ -31,7 +31,7 @@ We want to get to know you a bit better! Include a paragraph or two in a file ca
  - Why are you uniquely capable of doing this job?
  - What's your most memorable characteristic?
 
-You can optionally encrypt this file using the instructions at the bottom of this document, in which case you would name the file `essay.txt.enc`.
+You can optionally encrypt this file using the instructions at the bottom of this document, in which case you would name the file `essay.md.enc`.
 
 ### Challenge
 
