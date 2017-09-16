@@ -1,9 +1,25 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import os, base64, subprocess, multiprocessing, json, traceback
+import sys, os, base64, subprocess, multiprocessing, json, traceback, functools
+
+HAS_VARS = os.getenv('TRAVIS_SECURE_ENV_VARS', 'false') == 'true'
 
 class TestFailed(Exception):
   pass
+
+def with_vars(arg):
+  default = None if callable(arg) else arg
+
+  def with_vars_wrapper(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+      if not HAS_VARS:
+        print('Skipping call to {} (no private key)'.format(f.__name__), file=sys.stderr)
+        return default
+      return f(*args, **kwargs)
+    return wrapper
+
+  return with_vars_wrapper(arg) if callable(arg) else with_vars_wrapper
 
 def fail(s, *args):
   text = s.format(*args)
@@ -13,17 +29,21 @@ def fail(s, *args):
 def child_fail(s):
   fail('{}\n\n{}', s, traceback.format_exc())
 
+@with_vars
 def write_private_key():
   with open('private.pem', 'wb') as f:
     f.write(base64.b64decode(os.environ['PRIVATE_KEY']))
 
+@with_vars
 def remove_private_key():
   os.remove('private.pem')
 
+@with_vars
 def hide_private_key():
   del os.environ['PRIVATE_KEY']
   assert not subprocess.run('echo $PRIVATE_KEY', stdout=subprocess.PIPE, shell=True).stdout.strip()
 
+@with_vars
 def decrypt_file(infile, outfile):
   subprocess.run([
     'openssl',
@@ -40,6 +60,7 @@ def decrypt_file(infile, outfile):
     outfile,
   ]).check_returncode()
 
+@with_vars([])
 def decrypt_files(application_root):
   write_private_key()
   decrypted = []
@@ -73,7 +94,7 @@ def exists(file):
   return os.path.exists(file)
 
 def raise_if_not_exists(file):
-  if not exists(file):
+  if not exists(file) and (HAS_VARS or not exists('{}.enc'.format(file))):
     fail('{} is required but not found!'.format(file))
 
 def raise_if_empty(file, min_length=100):
@@ -86,10 +107,7 @@ def raise_if_not_executable(file):
   if not os.access(file, os.X_OK):
     fail('{} is not executable', file)
 
-def _verify_application():
-  for required in ['application.json', 'essay.txt', 'challenge']:
-    raise_if_not_exists(required)
-
+def check_json():
   required_keys = {
     'first_name',
     'last_name',
@@ -109,7 +127,15 @@ def _verify_application():
   if missing:
     fail('missing keys in application.json: {}', missing)
 
-  raise_if_empty('essay.txt')
+def _verify_application():
+  for required in ['application.json', 'essay.txt', 'challenge']:
+    raise_if_not_exists(required)
+
+  if exists('application.json'):
+    check_json()
+
+  if exists('essay.txt'):
+    raise_if_empty('essay.txt')
 
   index = os.path.join('challenge', 'index.html')
   build = os.path.join('challenge', 'build.sh')
