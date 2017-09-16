@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.6
 
 import sys, os, base64, subprocess, multiprocessing, json, traceback, functools
+from datetime import datetime
 
 HAS_VARS = os.getenv('TRAVIS_SECURE_ENV_VARS', 'false') == 'true'
 
@@ -14,7 +15,6 @@ def with_vars(arg):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
       if not HAS_VARS:
-        print('Skipping call to {} (no private key)'.format(f.__name__), file=sys.stderr)
         return default
       return f(*args, **kwargs)
     return wrapper
@@ -80,10 +80,18 @@ def remove_files(files):
 
 def check_applications():
   for username in os.listdir('applications'):
-    check_application(username)
+    root = os.path.join('applications', username)
+    time = datetime.utcfromtimestamp(os.path.getmtime(root)).strftime('%B %d, %Y')
+    print('---\n{} ({})\n---'.format(username, time))
+    try:
+      check_application(root)
+    except TestFailed:
+      print('This application is not valid.')
+      exit(1)
+    else:
+      print('This application is valid!')
 
-def check_application(username):
-  root = os.path.join('applications', username)
+def check_application(root):
   decrypted = decrypt_files(root)
   try:
     start_verify_process(root)
@@ -168,15 +176,14 @@ def start_verify_process(root):
   pool.close()
   pool.join()
 
+def init():
+  if not HAS_VARS:
+    print('Warning: Skipping decryption calls (no private key)', file=sys.stderr)
+  multiprocessing.set_start_method('spawn')
+
 def run():
-  try:
-    check_applications()
-  except TestFailed:
-    print('This application is not valid.')
-    exit(1)
-  else:
-    print('This application is valid!')
+  init()
+  check_applications()
 
 if __name__ == '__main__':
-  multiprocessing.set_start_method('spawn')
   run()
