@@ -48,7 +48,7 @@ Alternatively, if your solution is a static site, you can simply include an `ind
 If you wish to conceal your personal information, you can encrypt individual files using the public key found in this repo ([`public.pem`](public.pem)). Please append the extension `.enc` to any file you encrypt. To encrypt a file, you can use the below command (make sure `openssl` is installed).
 
 ```bash
-openssl rsautl -encrypt -inkey public.pem -pubin -in application.json -out application.json.enc
+openssl smime -encrypt -aes256 -binary -in application.json -outform DEM -out application.json.enc public.pem
 ```
 
 ## Questions?
