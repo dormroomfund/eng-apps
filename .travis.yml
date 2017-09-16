@@ -3,4 +3,4 @@ python:
   - "3.6"
 sudo: enabled
 script:
-  - sudo -HE python3 test/run_tests.py
+  - sudo -HE python3.6 test/run_tests.py
