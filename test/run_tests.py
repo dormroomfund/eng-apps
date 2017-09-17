@@ -173,7 +173,7 @@ def _verify_application():
       fail('{} did not output anything', build)
   elif exists(index):
     raise_if_empty(index)
-  else:
+  elif not any(exists('{}.enc'.format(x)) for x in [index, build]):
     fail('neither {} not {} is present', index, build)
 
 def verify_application(root):
