@@ -2,11 +2,18 @@
 
 import sys, os, base64, subprocess, multiprocessing, json, traceback, functools
 from datetime import datetime
+from github import Github
 
 HAS_VARS = os.getenv('TRAVIS_SECURE_ENV_VARS', 'false') == 'true'
 
 class TestFailed(Exception):
   pass
+
+def user():
+  slug = os.getenv('TRAVIS_PULL_REQUEST_SLUG')
+  if not slug:
+    return None
+  return slug.split('/')[0]
 
 def with_vars(arg):
   default = None if callable(arg) else arg
@@ -79,21 +86,28 @@ def remove_files(files):
     os.remove(file)
 
 def check_applications():
+  if user():
+    check_application(user())
+    return
+
   for username in os.listdir('applications'):
     if username.startswith('.'):
       continue
-    root = os.path.join('applications', username)
-    time = datetime.utcfromtimestamp(os.path.getmtime(root)).strftime('%B %d, %Y')
-    print('---\n{} ({})\n---'.format(username, time))
-    try:
-      check_application(root)
-    except TestFailed:
-      print('This application is not valid.')
-      exit(1)
-    else:
-      print('This application is valid!')
+    check_application(username)
 
-def check_application(root):
+def check_application(username):
+  root = os.path.join('applications', username)
+  time = datetime.utcfromtimestamp(os.path.getmtime(root)).strftime('%B %d, %Y')
+  print('\n{} ({})\n---'.format(username, time))
+  try:
+    _check_application(root)
+  except TestFailed:
+    print('This application is not valid.')
+    exit(1)
+  else:
+    print('This application is valid!')
+
+def _check_application(root):
   decrypted = decrypt_files(root)
   try:
     start_verify_process(root)
