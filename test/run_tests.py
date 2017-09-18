@@ -49,7 +49,6 @@ def write_private_key():
   with open('private.pem', 'wb') as f:
     f.write(base64.b64decode(os.environ['PRIVATE_KEY']))
 
-@with_vars
 def remove_private_key():
   os.remove('private.pem')
 
@@ -58,7 +57,6 @@ def hide_private_key():
   del os.environ['PRIVATE_KEY']
   assert not subprocess.run('echo $PRIVATE_KEY', stdout=subprocess.PIPE, shell=True).stdout.strip()
 
-@with_vars
 def decrypt_file(infile, outfile):
   subprocess.run([
     'openssl',
@@ -75,9 +73,7 @@ def decrypt_file(infile, outfile):
     outfile,
   ]).check_returncode()
 
-@with_vars([])
-def decrypt_files(application_root):
-  write_private_key()
+def _decrypt_files(application_root):
   decrypted = []
   for root, dirs, files in os.walk(application_root):
       for file in files:
@@ -86,6 +82,12 @@ def decrypt_files(application_root):
           outfile = infile[:-4]
           decrypt_file(infile, outfile)
           decrypted.append(outfile)
+  return decrypted
+
+@with_vars([])
+def decrypt_files(application_root):
+  write_private_key()
+  decrypted = _decrypt_files(application_root)
   remove_private_key()
   return decrypted
 
