@@ -105,9 +105,11 @@ def check_applications():
 
 def check_application(username):
   root = os.path.join('applications', username)
-  time = datetime.utcfromtimestamp(os.path.getmtime(root)).strftime('%B %d, %Y')
-  print('\n{} ({})\n---'.format(username, time))
   try:
+    if not exists(root):
+      fail('could not find application directory for `{}`'.format(username))
+    time = datetime.utcfromtimestamp(os.path.getmtime(root)).strftime('%B %d, %Y')
+    print('\n{} ({})\n---'.format(username, time))
     _check_application(root)
   except TestFailed as ex:
     print('This application is not valid.')
@@ -204,7 +206,7 @@ def start_verify_process(root):
 
 def init():
   if not HAS_VARS:
-    print('Warning: Skipping decryption calls (no private key)', file=sys.stderr)
+    print('WARN: Skipping decryption calls (no private key)', file=sys.stderr)
   multiprocessing.set_start_method('spawn')
 
 def run():
