@@ -1,4 +1,4 @@
-import os, json, requests
+import os, json
 from cached_property import cached_property
 from datetime import datetime
 import urllib.parse
@@ -9,6 +9,10 @@ class Application(object):
 
   def file(self, *path):
     return os.path.join(self.root, *path)
+
+  def is_enc(self, *path):
+    path = path[:-1] + ('{}.enc'.format(path[-1]),)
+    return os.path.exists(self.file(*path))
 
   def github(self, *path):
     return 'https://www.github.com/{}/tree/master/{}'.format(os.getenv('GH_REPO'), self.file(*path))
@@ -23,11 +27,14 @@ class Application(object):
 
   @cached_property
   def essay_url(self):
+    if self.is_enc('essay.md'):
+      return os.path.join('md2html',self.file('essay.md'))
     return self.github('essay.md')
 
   @cached_property
   def essay_length(self):
-    return len(requests.get(self.github_raw('essay.md')).text.split(' '))
+    with open(self.file('essay.md')) as f:
+      return len(f.read().split(' '))
 
   @cached_property
   def submitted(self):
@@ -44,16 +51,22 @@ class Application(object):
   @cached_property
   def challenge_url(self):
     if self.challenge_is_dynamic:
-      return self.github('challenge', 'build.sh')
+      path = ['challenge', 'build.sh']
+      return self.file(*path) if self.is_enc(*path) else self.github('challenge', 'build.sh')
     else:
-      return 'https://htmlpreview.github.io/?{}'.format(self.github_raw('challenge', 'index.html'))
+      path = ['challenge', 'index.html']
+      if self.is_enc(*path):
+        return self.file(*path)
+      return 'https://htmlpreview.github.io/?{}'.format(self.github_raw(*path))
 
   @cached_property
   def challenge_label(self):
     if self.challenge_is_dynamic:
-      return 'Build Script'
+      prefix = 'Decrypted ' if self.is_enc('challenge', 'build.sh') else ''
+      return '{}Build Script'.format(prefix)
     else:
-      return 'Preview'
+      prefix = 'Decrypted ' if self.is_enc('challenge', 'index.html') else ''
+      return '{}Preview'.format(prefix)
 
   @cached_property
   def resume_domain(self):

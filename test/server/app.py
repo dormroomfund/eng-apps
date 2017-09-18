@@ -1,5 +1,5 @@
-import os
-from flask import Flask, request, jsonify, render_template
+import os, markdown
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_basicauth import BasicAuth
 from github import Github
 from ..application import Applications
@@ -60,8 +60,20 @@ def api():
 
   return jsonify({'error': None})
 
-@app.route('/admin')
+@app.route('/applications')
 @basic_auth.required
 def admin():
   applications = sorted(Applications(), key=lambda x: x.submitted_raw)
   return render_template('admin.html', applications=applications)
+
+@app.route('/applications/<path:path>')
+@basic_auth.required
+def file(path):
+  return send_from_directory(os.path.join('..', '..', 'applications'), path)
+
+@app.route('/md2html/applications/<path:path>')
+@basic_auth.required
+def md2html_file(path):
+  with open(os.path.join('applications', path)) as f:
+    html = markdown.markdown(f.read())
+  return render_template('echo.html', path=path, html=html)
