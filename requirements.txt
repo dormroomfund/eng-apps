@@ -1,2 +1,2 @@
 -r test/requirements.txt
--r test-server/requirements.txt
+-r test/server/requirements.txt

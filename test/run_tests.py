@@ -1,7 +1,8 @@
 #!/usr/bin/env python3.6
 
-import sys, os, base64, subprocess, multiprocessing, json, traceback, functools, requests
+import sys, os, subprocess, multiprocessing, json, traceback, requests
 from datetime import datetime
+from common import decrypt_files, remove_files, hide_private_key
 
 HAS_VARS = os.getenv('TRAVIS_SECURE_ENV_VARS', 'false') == 'true'
 API_URL = 'https://drf-eng-apps.herokuapp.com'
@@ -18,19 +19,6 @@ def user():
     return None
   return slug.split('/')[0]
 
-def with_vars(arg):
-  default = None if callable(arg) else arg
-
-  def with_vars_wrapper(f):
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-      if not HAS_VARS:
-        return default
-      return f(*args, **kwargs)
-    return wrapper
-
-  return with_vars_wrapper(arg) if callable(arg) else with_vars_wrapper
-
 def fail(s, *args):
   text = s.format(*args)
   print("FATAL: {}".format(text))
@@ -43,57 +31,6 @@ def post_comment(user, ex=None):
   valid = not bool(ex)
   message = str(ex) if ex else ''
   requests.post(API_URL, {'user': user, 'branch': branch(), 'message': message, 'valid': valid})
-
-@with_vars
-def write_private_key():
-  with open('private.pem', 'wb') as f:
-    f.write(base64.b64decode(os.environ['PRIVATE_KEY']))
-
-def remove_private_key():
-  os.remove('private.pem')
-
-@with_vars
-def hide_private_key():
-  del os.environ['PRIVATE_KEY']
-  assert not subprocess.run('echo $PRIVATE_KEY', stdout=subprocess.PIPE, shell=True).stdout.strip()
-
-def decrypt_file(infile, outfile):
-  subprocess.run([
-    'openssl',
-    'smime',
-    '-decrypt',
-    '-binary',
-    '-inkey',
-    'private.pem',
-    '-inform',
-    'DEM',
-    '-in',
-    infile,
-    '-out',
-    outfile,
-  ]).check_returncode()
-
-def _decrypt_files(application_root):
-  decrypted = []
-  for root, dirs, files in os.walk(application_root):
-      for file in files:
-        if file.endswith('.enc'):
-          infile = os.path.join(root, file)
-          outfile = infile[:-4]
-          decrypt_file(infile, outfile)
-          decrypted.append(outfile)
-  return decrypted
-
-@with_vars([])
-def decrypt_files(application_root):
-  write_private_key()
-  decrypted = _decrypt_files(application_root)
-  remove_private_key()
-  return decrypted
-
-def remove_files(files):
-  for file in files:
-    os.remove(file)
 
 def check_applications():
   if user():
