@@ -1,0 +1,2 @@
+PyGithub==1.35
+PyJWT==1.5.3

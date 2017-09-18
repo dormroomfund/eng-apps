@@ -2,7 +2,6 @@
 
 import sys, os, base64, subprocess, multiprocessing, json, traceback, functools
 from datetime import datetime
-from github import Github
 
 HAS_VARS = os.getenv('TRAVIS_SECURE_ENV_VARS', 'false') == 'true'
 
