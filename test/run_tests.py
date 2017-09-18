@@ -49,7 +49,6 @@ def write_private_key():
   with open('private.pem', 'wb') as f:
     f.write(base64.b64decode(os.environ['PRIVATE_KEY']))
 
-@with_vars
 def remove_private_key():
   os.remove('private.pem')
 
@@ -58,7 +57,6 @@ def hide_private_key():
   del os.environ['PRIVATE_KEY']
   assert not subprocess.run('echo $PRIVATE_KEY', stdout=subprocess.PIPE, shell=True).stdout.strip()
 
-@with_vars
 def decrypt_file(infile, outfile):
   subprocess.run([
     'openssl',
@@ -75,9 +73,7 @@ def decrypt_file(infile, outfile):
     outfile,
   ]).check_returncode()
 
-@with_vars([])
-def decrypt_files(application_root):
-  write_private_key()
+def _decrypt_files(application_root):
   decrypted = []
   for root, dirs, files in os.walk(application_root):
       for file in files:
@@ -86,6 +82,12 @@ def decrypt_files(application_root):
           outfile = infile[:-4]
           decrypt_file(infile, outfile)
           decrypted.append(outfile)
+  return decrypted
+
+@with_vars([])
+def decrypt_files(application_root):
+  write_private_key()
+  decrypted = _decrypt_files(application_root)
   remove_private_key()
   return decrypted
 
@@ -105,9 +107,11 @@ def check_applications():
 
 def check_application(username):
   root = os.path.join('applications', username)
-  time = datetime.utcfromtimestamp(os.path.getmtime(root)).strftime('%B %d, %Y')
-  print('\n{} ({})\n---'.format(username, time))
   try:
+    if not exists(root):
+      fail('could not find application directory for `{}`'.format(username))
+    time = datetime.utcfromtimestamp(os.path.getmtime(root)).strftime('%B %d, %Y')
+    print('\n{} ({})\n---'.format(username, time))
     _check_application(root)
   except TestFailed as ex:
     print('This application is not valid.')
@@ -204,7 +208,7 @@ def start_verify_process(root):
 
 def init():
   if not HAS_VARS:
-    print('Warning: Skipping decryption calls (no private key)', file=sys.stderr)
+    print('WARN: Skipping decryption calls (no private key)', file=sys.stderr)
   multiprocessing.set_start_method('spawn')
 
 def run():
