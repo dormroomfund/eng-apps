@@ -1,12 +1,16 @@
 #!/usr/bin/env python3.6
 
-import sys, os, base64, subprocess, multiprocessing, json, traceback, functools
+import sys, os, base64, subprocess, multiprocessing, json, traceback, functools, requests
 from datetime import datetime
 
 HAS_VARS = os.getenv('TRAVIS_SECURE_ENV_VARS', 'false') == 'true'
+API_URL = 'https://drf-eng-apps.herokuapp.com'
 
 class TestFailed(Exception):
   pass
+
+def branch():
+  return os.getenv('TRAVIS_PULL_REQUEST_BRANCH') or os.getenv('TRAVIS_BRANCH')
 
 def user():
   slug = os.getenv('TRAVIS_PULL_REQUEST_SLUG')
@@ -34,6 +38,11 @@ def fail(s, *args):
 
 def child_fail(s):
   fail('{}\n\n{}', s, traceback.format_exc())
+
+def post_comment(user, ex=None):
+  valid = not bool(ex)
+  message = str(ex) if ex else ''
+  requests.post(API_URL, {'user': user, 'branch': branch(), 'message': message, 'valid': valid})
 
 @with_vars
 def write_private_key():
@@ -100,11 +109,13 @@ def check_application(username):
   print('\n{} ({})\n---'.format(username, time))
   try:
     _check_application(root)
-  except TestFailed:
+  except TestFailed as ex:
     print('This application is not valid.')
+    post_comment(username, ex)
     exit(1)
   else:
     print('This application is valid!')
+    post_comment(username)
 
 def _check_application(root):
   decrypted = decrypt_files(root)
