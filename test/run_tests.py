@@ -1,12 +1,22 @@
 #!/usr/bin/env python3.6
 
-import sys, os, base64, subprocess, multiprocessing, json, traceback, functools
+import sys, os, base64, subprocess, multiprocessing, json, traceback, functools, requests
 from datetime import datetime
 
 HAS_VARS = os.getenv('TRAVIS_SECURE_ENV_VARS', 'false') == 'true'
+API_URL = 'https://drf-eng-apps.herokuapp.com'
 
 class TestFailed(Exception):
   pass
+
+def branch():
+  return os.getenv('TRAVIS_PULL_REQUEST_BRANCH') or os.getenv('TRAVIS_BRANCH')
+
+def user():
+  slug = os.getenv('TRAVIS_PULL_REQUEST_SLUG')
+  if not slug:
+    return None
+  return slug.split('/')[0]
 
 def with_vars(arg):
   default = None if callable(arg) else arg
@@ -28,6 +38,11 @@ def fail(s, *args):
 
 def child_fail(s):
   fail('{}\n\n{}', s, traceback.format_exc())
+
+def post_comment(user, ex=None):
+  valid = not bool(ex)
+  message = str(ex) if ex else ''
+  requests.post(API_URL, {'user': user, 'branch': branch(), 'message': message, 'valid': valid})
 
 @with_vars
 def write_private_key():
@@ -79,21 +94,30 @@ def remove_files(files):
     os.remove(file)
 
 def check_applications():
+  if user():
+    check_application(user())
+    return
+
   for username in os.listdir('applications'):
     if username.startswith('.'):
       continue
-    root = os.path.join('applications', username)
-    time = datetime.utcfromtimestamp(os.path.getmtime(root)).strftime('%B %d, %Y')
-    print('---\n{} ({})\n---'.format(username, time))
-    try:
-      check_application(root)
-    except TestFailed:
-      print('This application is not valid.')
-      exit(1)
-    else:
-      print('This application is valid!')
+    check_application(username)
 
-def check_application(root):
+def check_application(username):
+  root = os.path.join('applications', username)
+  time = datetime.utcfromtimestamp(os.path.getmtime(root)).strftime('%B %d, %Y')
+  print('\n{} ({})\n---'.format(username, time))
+  try:
+    _check_application(root)
+  except TestFailed as ex:
+    print('This application is not valid.')
+    post_comment(username, ex)
+    exit(1)
+  else:
+    print('This application is valid!')
+    post_comment(username)
+
+def _check_application(root):
   decrypted = decrypt_files(root)
   try:
     start_verify_process(root)
@@ -159,7 +183,7 @@ def _verify_application():
       fail('{} did not output anything', build)
   elif exists(index):
     raise_if_empty(index)
-  else:
+  elif not any(exists('{}.enc'.format(x)) for x in [index, build]):
     fail('neither {} not {} is present', index, build)
 
 def verify_application(root):
