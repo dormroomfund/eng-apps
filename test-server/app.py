@@ -34,7 +34,7 @@ def create_pr_comment(pr):
   else:
     pr.create_issue_comment(message)
 
-@app.route('/')
+@app.route('/', methods=['POST'])
 def api():
   repo = github.get_repo(os.getenv('GH_REPO'))
   user = request.values['user']
