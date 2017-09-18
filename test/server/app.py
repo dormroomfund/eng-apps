@@ -1,8 +1,14 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
+from flask_basicauth import BasicAuth
 from github import Github
+from ..application import Applications
 
 app = Flask(__name__)
+app.config['BASIC_AUTH_USERNAME'] = os.getenv('BASIC_AUTH_USERNAME')
+app.config['BASIC_AUTH_PASSWORD'] = os.getenv('BASIC_AUTH_PASSWORD')
+
+basic_auth = BasicAuth(app)
 github = Github(os.getenv('GH_TOKEN'))
 
 def valid():
@@ -15,16 +21,20 @@ def full_pr_message(valid, message):
     return 'Your application is invalid! **{}**'.format(message)
 
 def create_issue_comment(repo, user):
-  if valid():
-    return
   title = "Invalid Application: {}".format(user)
-  message = 'Hey @{}, your application is invalid! **{}**'.format(user, request.values['message'])
+  valid_message = 'Thanks @{}, your application has been fixed!'.format(user)
+  invalid_message = 'Hey @{}, your application is invalid! **{}**'.format(user, request.values['message'])
   try:
     issue = repo.get_issues(assignee=user)[0]
   except IndexError:
-    repo.create_issue(title, message, user, labels=['application-invalid'])
+    if not valid():
+      repo.create_issue(title, invalid_message, user, labels=['application-invalid'])
   else:
-    issue.edit(title, message)
+    if valid():
+      issue.create_comment(valid_message)
+      issue.edit(state='closed')
+    else:
+      issue.create_comment(invalid_message)
 
 def create_pr_comment(pr):
   comment = next(filter(lambda x: x.user.login == os.getenv('GH_USER'), pr.get_issue_comments()), None)
@@ -46,3 +56,9 @@ def api():
     create_pr_comment(pr)
 
   return jsonify({'error': None})
+
+@app.route('/admin')
+@basic_auth.required
+def admin():
+  applications = sorted(Applications(), key=lambda x: x.submitted_raw)
+  return render_template('admin.html', applications=applications)
