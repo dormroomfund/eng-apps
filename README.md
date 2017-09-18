@@ -17,6 +17,7 @@ Please include the following information, in a valid JSON blob stored in `applic
   - Graduation Year
   - Resume (Link)
   - LinkedIn (Link)
+  - Website (Link, Optional)
   - DRF Referral (Optional)
 
 You can optionally encrypt this file using the instructions at the bottom of this document, in which case you would name the file `application.json.enc`.
