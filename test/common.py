@@ -52,12 +52,12 @@ def decrypt_file(infile, outfile):
 def _decrypt_files(application_root):
   decrypted = []
   for root, dirs, files in os.walk(application_root):
-      for file in files:
-        if file.endswith('.enc'):
-          infile = os.path.join(root, file)
-          outfile = infile[:-4]
-          decrypt_file(infile, outfile)
-          decrypted.append(outfile)
+    for file in files:
+      if file.endswith('.enc'):
+        infile = os.path.join(root, file)
+        outfile = infile[:-4]
+        decrypt_file(infile, outfile)
+        decrypted.append(outfile)
   return decrypted
 
 @with_vars([])

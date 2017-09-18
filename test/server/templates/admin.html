@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DRF Eng Apps</title>
+  <base target="_blank">
+
+  <style>
+    /*
+      ===================
+      License:
+      https://goo.gl/EaUPrt
+      ===================
+      Author: @PableraShow
+     */
+
+    @charset "UTF-8";
+    @import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700);
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.42em;
+      color:#A7A1AE;
+      background-color:#1F2739;
+    }
+
+    td > a {
+      color:#A7A1AE;
+      text-decoration: none;
+      display:block;
+      width:100%;
+    }
+    td:hover > a {
+      color: white;
+    }
+
+    .blue { color: #185875; }
+    .yellow { color: #FFF842; }
+
+    .container th h1 {
+      font-weight: bold;
+      font-size: 1.5em;
+      text-align: center;
+      line-height:1em;
+      color: #185875;
+    }
+
+    .container td {
+      font-weight: normal;
+      font-size: 1em;
+      -webkit-box-shadow: 0 2px 2px -2px #0E1119;
+         -moz-box-shadow: 0 2px 2px -2px #0E1119;
+              box-shadow: 0 2px 2px -2px #0E1119;
+    }
+
+    .container {
+      text-align: left;
+      overflow: hidden;
+      width: 80%;
+      margin: 0 auto;
+      display: table;
+      padding: 0 0 8em 0;
+      cursor: pointer;
+    }
+
+    .container td, .container th {
+      padding: 2%;
+    }
+
+    /* Background-color of the odd rows */
+    .container tr:nth-child(odd) {
+      background-color: #323C50;
+    }
+
+    /* Background-color of the even rows */
+    .container tr:nth-child(even) {
+      background-color: #2C3446;
+    }
+
+    .container th {
+      background-color: #1F2739;
+    }
+
+    .container td:first-child, .container td:first-child > a { color: #FB667A; }
+
+    .container tr:hover {
+      background-color: #464A52;
+      -webkit-box-shadow: 0 6px 6px -6px #0E1119;
+         -moz-box-shadow: 0 6px 6px -6px #0E1119;
+              box-shadow: 0 6px 6px -6px #0E1119;
+    }
+
+    .container td:hover {
+      background-color: #7709E8;
+      color: white;
+      font-weight: bold;
+
+      box-shadow: #552B7F -0.5px 0.5px, #552B7F -1px 1px, #552B7F -1.5px 1.5px, #552B7F -2px 2px, #552B7F -2.5px 2.5px, #552B7F -3px 3px;
+      transform: translate3d(2px, -2px, 0);
+
+      transition-delay: 0s;
+      transition-duration: 0.4s;
+      transition-property: all;
+      transition-timing-function: line;
+    }
+  </style>
+</head>
+<body>
+  <table class="container">
+    <thead>
+      <tr>
+        <th><h1>Name</h1></th>
+        <th><h1>Submitted</h1></th>
+        <th><h1>School</h1></th>
+        <th><h1>Resume</h1></th>
+        <th><h1>LinkedIn</h1></th>
+        <th><h1>Website</h1></th>
+        <th><h1>Referral</h1></th>
+        <th><h1>Essay</h1></th>
+        <th><h1>Challenge</h1></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for application in applications %}
+        <tr>
+          <td><a href="mailto:{{ application.basic['email'] }}">{{ application.basic['first_name'] }} {{ application.basic['last_name'] }}</a></td>
+          <td>{{ application.submitted }}</td>
+          <td>{{ application.basic['university'] }} ({{ application.basic['grad_year'] }})</td>
+          <td><a href="{{ application.basic['resume'] }}">{{ application.resume_domain }}</a></td>
+          <td><a href="{{ application.basic['linkedin'] }}">{{ application.linkedin_username }}</a></td>
+          <td>
+            {% if application.basic['website'] %}
+              <a href="{{ application.basic['website'] }}">{{ application.website_domain }}</a>
+            {% endif %}
+          </td>
+          <td>{{ application.basic['referral'] }}</td>
+          <td><a href="{{ application.essay_url }}">{{ application.essay_length }} Words</a></td>
+          <td><a href="{{ application.challenge_url }}">{{ application.challenge_label }}</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script>
+    for (let td of document.getElementsByTagName('td')) {
+      let a = td.getElementsByTagName('a')[0];
+      if (a) {
+        td.addEventListener('click', e => a.click());
+      }
+    }
+  </script>
+</body>
+</html>

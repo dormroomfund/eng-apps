@@ -1,8 +1,14 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
+from flask_basicauth import BasicAuth
 from github import Github
+from ..application import Applications
 
 app = Flask(__name__)
+app.config['BASIC_AUTH_USERNAME'] = os.getenv('BASIC_AUTH_USERNAME')
+app.config['BASIC_AUTH_PASSWORD'] = os.getenv('BASIC_AUTH_PASSWORD')
+
+basic_auth = BasicAuth(app)
 github = Github(os.getenv('GH_TOKEN'))
 
 def valid():
@@ -50,3 +56,9 @@ def api():
     create_pr_comment(pr)
 
   return jsonify({'error': None})
+
+@app.route('/admin')
+@basic_auth.required
+def admin():
+  applications = sorted(Applications(), key=lambda x: x.submitted_raw)
+  return render_template('admin.html', applications=applications)
