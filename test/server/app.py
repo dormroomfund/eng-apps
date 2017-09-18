@@ -19,7 +19,7 @@ def create_issue_comment(repo, user):
   valid_message = 'Thanks @{}, your application has been fixed!'.format(user)
   invalid_message = 'Hey @{}, your application is invalid! **{}**'.format(user, request.values['message'])
   try:
-    issue = repo.get_issues(assignee=user)[0]
+    issue = repo.get_issues(assignee=user)[-1]
   except IndexError:
     if not valid():
       repo.create_issue(title, invalid_message, user, labels=['application-invalid'])
@@ -43,7 +43,7 @@ def api():
   repo = github.get_repo(os.getenv('GH_REPO'))
   user = request.values['user']
   try:
-    pr = repo.get_pulls(head='{}:{}'.format(user, request.values['branch']))[0]
+    pr = repo.get_pulls(head='{}:{}'.format(user, request.values['branch']))[-1]
   except IndexError:
     create_issue_comment(repo, user)
   else:
