@@ -16,7 +16,7 @@ def valid():
 
 def full_pr_message(valid, message):
   if valid:
-    return 'Your application is valid! :sunglasses:'
+    return "Your application is valid so far! :sunglasses:\n\nIf you have encrypted files, I'll check those for errors after @{} merges your application.".format(os.getenv('GH_ADMIN'))
   else:
     return 'Your application is invalid! The reason is: **{}**'.format(message)
 
