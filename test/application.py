@@ -46,13 +46,13 @@ class Application(object):
 
   @cached_property
   def challenge_is_dynamic(self):
-    return bool(os.path.exists(self.file('challenge', 'build.sh')))
+    return bool(os.path.exists(self.file('challenge', 'run.sh')))
 
   @cached_property
   def challenge_url(self):
     if self.challenge_is_dynamic:
-      path = ['challenge', 'build.sh']
-      return self.file(*path) if self.is_enc(*path) else self.github('challenge', 'build.sh')
+      path = ['challenge', 'run.sh']
+      return self.file(*path) if self.is_enc(*path) else self.github('challenge', 'run.sh')
     else:
       path = ['challenge', 'index.html']
       if self.is_enc(*path):
@@ -62,7 +62,7 @@ class Application(object):
   @cached_property
   def challenge_label(self):
     if self.challenge_is_dynamic:
-      prefix = 'Decrypted ' if self.is_enc('challenge', 'build.sh') else ''
+      prefix = 'Decrypted ' if self.is_enc('challenge', 'run.sh') else ''
       return '{}Build Script'.format(prefix)
     else:
       prefix = 'Decrypted ' if self.is_enc('challenge', 'index.html') else ''

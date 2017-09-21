@@ -113,7 +113,7 @@ def _verify_application():
     raise_if_empty('essay.md')
 
   index = os.path.join('challenge', 'index.html')
-  build = os.path.join('challenge', 'build.sh')
+  build = os.path.join('challenge', 'run.sh')
 
   if exists(build):
     raise_if_not_executable(build)
