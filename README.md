@@ -40,7 +40,11 @@ We have the world's quickest coding challenge for you to do! In a subdirectory c
 
 > What is the most creative way you can get a circle to appear on the screen of a web browser?
 
-Please include a run script (`run.sh`) which we can run to test your solution. This script should do any necessary building and compilation, and print either an address or a file we can open in a web browser running on the same machine.
+Please include a run script (`run.sh`) which we can run to test your solution. This script should do any necessary building and compilation, and print either an address or a file we can open in a web browser running on the same machine. Make sure the script contains a valid shebang.
+
+If you start a server, make sure you background it and have the script print out a URL to visit. If you start a server, please use the `$PORT` environment variable (which will be set for you) to determine which port to start the server on.
+
+Please note, if you are calling `python` in your run script, you should be explicit about calling either `python2` or `python3`.
 
 Alternatively, if your solution is a static site, you can simply include an `index.html` file and omit the run script.
 
