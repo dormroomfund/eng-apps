@@ -21,7 +21,7 @@ def user():
   return slug.split('/')[0]
 
 def kill_children(port):
-  subprocess.run('lsof -Pti :{} | xargs kill'.format(port), shell=True)
+  subprocess.run('lsof -Pti :{} | xargs kill'.format(port), shell=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
   for child in psutil.Process().children(recursive=True):
     child.kill()
 
