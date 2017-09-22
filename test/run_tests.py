@@ -14,6 +14,9 @@ class TestFailed(Exception):
 def branch():
   return os.getenv('TRAVIS_PULL_REQUEST_BRANCH') or os.getenv('TRAVIS_BRANCH')
 
+def is_pr():
+  return bool(os.getenv('TRAVIS_PULL_REQUEST_SLUG'))
+
 def user():
   slug = os.getenv('TRAVIS_PULL_REQUEST_SLUG')
   if not slug:
@@ -62,7 +65,8 @@ def check_application(username):
   except TestFailed as ex:
     print('This application is not valid.')
     post_comment(username, ex)
-    exit(1)
+    if is_pr():
+      exit(1)
   else:
     print('This application is valid!')
     post_comment(username)
