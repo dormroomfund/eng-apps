@@ -6,7 +6,7 @@ from common import decrypt_files, remove_files, hide_private_key
 
 HAS_VARS = os.getenv('TRAVIS_SECURE_ENV_VARS', 'false') == 'true'
 API_URL = 'https://drf-eng-apps.herokuapp.com'
-URL_REGEX = re.compile(r'^(?:(?:https?|ftp|file)://)(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:/[^\s]*)?$')
+URL_REGEX = re.compile(r'(https?|ftp|file)://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', re.MULTILINE)
 
 class TestFailed(Exception):
   pass
@@ -42,7 +42,11 @@ def child_fail(s):
 def post_comment(user, ex=None):
   valid = not bool(ex)
   message = str(ex) if ex else ''
-  requests.post(API_URL, {'user': user, 'branch': branch(), 'message': message, 'valid': valid})
+  params = {'user': user, 'branch': branch(), 'message': message, 'valid': valid}
+  if os.getenv("NO_COMMENT"):
+    print('COMMENT: {}'.format(params))
+  else:
+    requests.post(API_URL, params)
 
 def check_applications():
   if user():
@@ -133,7 +137,7 @@ def _verify_application():
     fix_if_not_executable(build)
     try:
       with tempfile.TemporaryFile() as f:
-        result = subprocess.run(build, timeout=1, stdout=f, stderr=f, shell=True)
+        result = subprocess.run(build, timeout=10, stdout=f, stderr=f, shell=True)
         f.seek(0)
         output = f.read().decode('utf-8')
     except OSError as e:
@@ -144,11 +148,11 @@ def _verify_application():
     except subprocess.TimeoutExpired:
       fail('{} timed out after 10 seconds - if you are starting a server, make sure you background it and print a URL', build)
     if result.returncode != 0:
-      fail('{} exited with nonzero status {}\n\n output: \n\n {}', build, result.returncode, output)
+      fail('{} exited with nonzero status {}\n\n output:\n```\n{}\n```', build, result.returncode, output)
     if not output:
       fail('{} did not output anything', build)
-    if not URL_REGEX.match(output):
-      fail('{} did not output a URL with scheme http, https, ftp, or file\n\n output: \n\n {}', build, output)
+    if not URL_REGEX.search(output):
+      fail('{} did not output a URL with scheme http, https, ftp, or file\n\n output:\n```\n{}\n```', build, output)
   elif exists(index):
     raise_if_empty(index)
   elif not any(exists('{}.enc'.format(x)) for x in [index, build]):
