@@ -5,5 +5,5 @@ if [ -z "$PORT" ]; then
 fi
 
 # assumes ruby 1.9.2+
-ruby -run -ehttpd . -p$PORT &
-echo "http://localhost:$PORT"
+ruby -run -ehttpd $(dirname "$0") -p$PORT &
+echo "http://127.0.0.1:$PORT"
