@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>CIRCLES :D</title>
+  <!--
+                                                                             
+    ,ad8888ba,   88  88888888ba     ,ad8888ba,   88           88888888888  
+   d8"'    `"8b  88  88      "8b   d8"'    `"8b  88           88           
+  d8'            88  88      ,8P  d8'            88           88           
+  88             88  88aaaaaa8P'  88             88           88aaaaa      
+  88             88  88""""88'    88             88           88"""""      
+  Y8,            88  88    `8b    Y8,            88           88           
+   Y8a.    .a8P  88  88     `8b    Y8a.    .a8P  88           88           
+    `"Y8888Y"'   88  88      `8b    `"Y8888Y"'   88888888888  88888888888  
+                                                                           
+  -->
+  <style>
+    main {
+      margin: 0 auto;
+      width: 560px;
+    }
+
+    .buttons {
+      position: relative;
+      padding: 100px 0;
+      padding-left: 30px;
+      transform: translateX(-30px);
+    }
+
+    .fb-share-button,
+    .twitter-hashtag-button,
+    .google-plus,
+    .IN-widget,
+    .pinterest,
+    .tumblr,
+    .reddit,
+    .stumble-upon {
+      animation: 4s linear infinite;
+      position: absolute !important; /* override pesky vendor code */
+      top: 50%;
+      left: 50%;
+    }
+
+    @keyframes circles-facebook {
+      from { transform: rotate(-90deg) translateX(250px) rotate(90deg); }
+      to   { transform: rotate(270deg) translateX(250px) rotate(-270deg); }
+    }
+    .fb-share-button { animation-name: circles-facebook; }
+
+    @keyframes circles-twitter {
+      from { transform: rotate(-45deg) translateX(250px) rotate(45deg); }
+      to   { transform: rotate(315deg) translateX(250px) rotate(-315deg); }
+    }
+    .twitter-hashtag-button { animation-name: circles-twitter; }
+
+    @keyframes circles-gplus {
+      from { transform: rotate(0deg) translateX(250px) rotate(0deg); }
+      to   { transform: rotate(360deg) translateX(250px) rotate(-360deg); }
+    }
+    .google-plus            { animation-name: circles-gplus; }
+
+    @keyframes circles-linkedin {
+      from { transform: rotate(-315deg) translateX(250px) rotate(315deg); }
+      to   { transform: rotate(45deg) translateX(250px) rotate(-45deg); }
+    }
+    .IN-widget              { animation-name: circles-linkedin;  }
+
+    @keyframes circles-pinterest {
+      from { transform: rotate(-270deg) translateX(250px) rotate(270deg); }
+      to   { transform: rotate(90deg) translateX(250px) rotate(-90deg); }
+    }
+    .pinterest              { animation-name: circles-pinterest; }
+
+    @keyframes circles-tumblr {
+      from { transform: rotate(-225deg) translateX(250px) rotate(225deg); }
+      to   { transform: rotate(135deg) translateX(250px) rotate(-135deg); }
+    }
+    .tumblr                 { animation-name: circles-tumblr; }
+
+    @keyframes circles-reddit {
+      from { transform: rotate(-180deg) translateX(250px) rotate(180deg); }
+      to   { transform: rotate(180deg) translateX(250px) rotate(-180deg); }
+    }
+    .reddit                 { animation-name: circles-reddit;   }
+
+    @keyframes circles-stumbleupon {
+      from { transform: rotate(-135deg) translateX(250px) rotate(135deg); }
+      to   { transform: rotate(225deg) translateX(250px) rotate(-225deg); }
+    }
+    .stumble-upon           { animation-name: circles-stumbleupon;  }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>I heard you like circles...</h1>
+    <h3>This application may require you to disable NoScript, your ad blocker, Ghostery, etc. 
+    Honestly it may be more easier just to open this thing in a default install of Chrome
+    on that random test laptop you just keep forgetting to throw away.</h3>
+
+    <div class="buttons">
+      <!-- Youtube -->
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/wmqsk1vZSKw?autoplay=1" frameborder="0" allowfullscreen>
+      </iframe>
+
+      <!-- Facebook -->
+      <div id="fb-root"></div>
+      <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.10&appId=394709370634763";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));</script>
+      <div class="fb-share-button" data-href="http://lmgtfy.com/?q=What+is+the+most+creative+way+you+can+get+a+circle+to+appear+on+the+screen+of+a+web+browser%3F" data-layout="button" data-size="large" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fplugins%2F&amp;src=sdkpreparse">Share</a></div>  
+
+      <!-- Twitter -->
+      <a href="https://twitter.com/intent/tweet?button_hashtag=circle" class="twitter-hashtag-button" data-show-count="false">Tweet #circle</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+      <!-- Google Plus -->
+      <script src="https://apis.google.com/js/platform.js" async defer></script>
+      <div class="google-plus">
+        <g:plus action="share"></g:plus>
+      </div>
+
+      <!-- LinkedIn -->
+      <script src="//platform.linkedin.com/in.js" type="text/javascript"> lang: en_US</script>
+      <script type="IN/Share" data-url="https://www.youtube.com/watch?v=VV3cvIRSmck"></script>
+
+      <!-- Pinterest -->
+      <script
+        type="text/javascript"
+        async defer
+        src="//assets.pinterest.com/js/pinit.js"
+      ></script>
+      <div class="pinterest">
+        <a href="https://www.pinterest.com/pin/create/button/">
+          <img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" />
+        </a>
+      </div>
+
+      <!-- Tumblr -->
+      <div class="tumblr">
+        <a class="tumblr-share-button" href="https://www.tumblr.com/share"></a>
+      </div>
+      <script id="tumblr-js" async src="https://assets.tumblr.com/share-button.js"></script>
+
+      <!-- Reddit -->
+      <a href="//www.reddit.com/submit" onclick="window.location = '//www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false"> <img src="//www.redditstatic.com/spreddit7.gif" alt="submit to reddit" border="0" class="reddit"/> </a>
+
+      <!-- StumbleUpon (didn't know this was still a thing) -->
+      <div class="stumble-upon">
+        <su:badge class="stumbleupon" layout="2"></su:badge>
+      </div>
+      <script type="text/javascript">
+        (function() {
+          var li = document.createElement('script'); li.type = 'text/javascript'; li.async = true;
+          li.src = ('https:' == document.location.protocol ? 'https:' : 'http:') + '//platform.stumbleupon.com/1/widgets.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(li, s);
+        })();
+      </script>     
+    </div>
+
+    <h2>Wanna see a botched attempt at implementing circles in the browser? Click <a href="https://plus.google.com/circles">here</a>.</h2>
+    <h2>Wanna see successful circles? Click <a href="lmgtfy.com/?q=What+is+the+most+creative+way+you+can+get+a+circle+to+appear+on+the+screen+of+a+web+browser%3F">here</a>.</h2>
+  </main>
+
+  <!-- prefix-free -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+</body>
+</html>
