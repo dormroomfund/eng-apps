@@ -25,7 +25,7 @@ def create_issue_comment(repo, user):
   valid_message = 'Thanks @{}, your application has been fixed!'.format(user)
   invalid_message = 'Hey @{}, {}'.format(user, full_pr_message(False, request.values['message']))
   try:
-    issue = repo.get_issues(mentioned=github.get_user(user))[0]
+    issue = filter(lambda x: not x.get('pull_request'), repo.get_issues(mentioned=github.get_user(user)))[0]
   except IndexError:
     if not valid():
       repo.create_issue(title, invalid_message, labels=['application-invalid'])
