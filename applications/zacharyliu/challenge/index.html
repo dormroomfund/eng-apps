@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Zachary Liu DRF Eng App</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #eee;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" />
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.lineWidth = 0;
+
+    const light = {
+      x: 0,
+      y: 0,
+    };
+
+    // move light source with mouse
+    document.addEventListener('mousemove', e => {
+      light.x = e.pageX;
+      light.y = e.pageY;
+    }, false);
+
+    function clear() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawCircle(circle) {
+      ctx.fillStyle = circle.color;
+      ctx.beginPath();
+      ctx.arc(circle.x, circle.y, circle.r, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    function drawShadow(c) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      const centerDistSq = Math.pow(c.x - light.x, 2) + Math.pow(c.y - light.y, 2);
+
+      // if light overlaps circle, fill entire rectangle
+      if (Math.sqrt(centerDistSq) < c.r) {
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+
+      // compute angle to center of circle
+      const thetaCenter = Math.atan2(c.y - light.y, c.x - light.x);
+
+      // compute tangent points
+      // http://www.ambrsoft.com/TrigoCalc/Circles2/CirclePoint/CirclePointDistance.htm
+      const xt = (Math.pow(c.r, 2) * (light.x - c.x) + c.r * (light.y - c.y) * Math.sqrt(centerDistSq - Math.pow(c.r, 2))) / centerDistSq + c.x;
+      const yt = (Math.pow(c.r, 2) * (light.y - c.y) - c.r * (light.x - c.x) * Math.sqrt(centerDistSq - Math.pow(c.r, 2))) / centerDistSq + c.y;
+      const dist = Math.sqrt(Math.pow(xt - light.x, 2) + Math.pow(yt - light.y, 2));
+      const thetaDelta = Math.atan(c.r / dist);
+
+      // draw
+      const maxDist = (canvas.width + canvas.height) / Math.cos(thetaDelta);
+      ctx.beginPath();
+      ctx.moveTo(light.x + dist * Math.cos(thetaCenter + thetaDelta), light.y + dist * Math.sin(thetaCenter + thetaDelta));
+      ctx.lineTo(light.x + dist * Math.cos(thetaCenter - thetaDelta), light.y + dist * Math.sin(thetaCenter - thetaDelta));
+      ctx.lineTo(light.x + maxDist * Math.cos(thetaCenter - thetaDelta), light.y + maxDist * Math.sin(thetaCenter - thetaDelta));
+      ctx.lineTo(light.x + maxDist * Math.cos(thetaCenter + thetaDelta), light.y + maxDist * Math.sin(thetaCenter + thetaDelta));
+      ctx.fill();
+    }
+
+    function randomValue() {
+      return Math.round(255 * (0.5 + 0.5 * Math.random()));
+    }
+
+    function randomColor() {
+      return `rgb(${randomValue()}, ${randomValue()}, ${randomValue()})`;
+    }
+
+    let circles = [];
+    const gravity = 1 / 1000;
+    const step = 1 / 60 * 1000;
+
+    let timeSinceSpawn = Infinity;
+    function update(dt) {
+      // simulate existing circles
+      circles.forEach(c => {
+        // apply accleration
+        c.vy += dt * gravity;
+
+        // apply velocity
+        c.x += dt * c.vx;
+        c.y += dt * c.vy;
+      });
+
+      // spawn new circle
+      timeSinceSpawn += dt;
+      if (timeSinceSpawn > 500) {
+        const radius = 60 + 20 * Math.random();
+        circles.push({
+          x: (canvas.width / 2) * Math.random(),
+          y: canvas.height - radius,
+          r: radius,
+          vx: 0.2 + 0.5 * Math.random(),
+          vy: -0.7 - 0.3 * Math.random(),
+          color: randomColor(),
+        });
+        timeSinceSpawn = 0;
+      }
+    }
+
+    function render() {
+      clear();
+      circles.forEach(drawShadow);
+      circles.forEach(drawCircle);
+    }
+
+    // render loop
+    // http://codeincomplete.com/posts/javascript-game-foundations-the-game-loop/
+    let now = performance.now();
+    function loop(ts) {
+      // resize
+      canvas.width = document.documentElement.clientWidth;
+      canvas.height = document.documentElement.clientHeight;
+
+      // physics update
+      while (now < ts) {
+        update(step);
+        now += step;
+      }
+
+      // render
+      render();
+
+      // remove off-screen circles
+      circles = circles.filter(c => c.y - c.r <= canvas.height);
+
+      // schedule next frame
+      requestAnimationFrame(loop);
+    }
+
+    // start animation
+    loop(now);
+  </script>
+</body>
+</html>
