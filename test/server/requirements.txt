@@ -6,7 +6,7 @@ Jinja2==2.9.6
 MarkupSafe==1.0
 PyGithub==1.35
 PyJWT==1.5.3
-Werkzeug==0.12.2
+Werkzeug==0.15.3
 cached-property==1.3.0
 Flask-BasicAuth==0.2.0
 markdown==2.6.9
