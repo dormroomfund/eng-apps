@@ -3,4 +3,4 @@ certifi==2017.7.27.1
 idna==2.6
 urllib3==1.22
 requests==2.18.4
-psutil==5.3.1
+psutil==5.6.6
